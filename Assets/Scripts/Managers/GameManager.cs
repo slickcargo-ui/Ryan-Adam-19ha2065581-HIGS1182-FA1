@@ -13,7 +13,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CollectibleManager collectibleManager;
 
     [Header("UI - Gameplay")]
-    [SerializeField] private Text scoreText;
+    [SerializeField] private TMPro.TextMeshProUGUI scoreText;
+
+    [Header("UI - High Score")]
+    [SerializeField] private TMPro.TextMeshProUGUI highScoreText;
+    [SerializeField] private TMPro.TextMeshProUGUI LosehighScoreText;
 
     [Header("UI - Game Over")]
     [SerializeField] private GameObject gameOverPanel;
@@ -21,7 +25,20 @@ public class GameManager : MonoBehaviour
     [Header("UI - Win")]
     [SerializeField] private GameObject winPanel;
 
+    [Header("UI - Difficulty")]
+    [SerializeField] private TMPro.TextMeshProUGUI difficultyText;
+
+    [Header("spawners")]
+    [SerializeField] private AsteroidsSpawner asteroidsSpawner;
+    [SerializeField] private EnemySpawner enemySpawner;
+
+    [Header("Effects")]
+    [SerializeField] private GameObject destroyEffectPrefab;
+    [SerializeField] private GameObject ScrapPickupEffect;
+
     private int score;
+    public int DifficultyLevel = 1;
+    private float timeUntilIncrease = 30f; // Time in seconds until difficulty increases
 
     private void Awake()
     {
@@ -36,6 +53,18 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         StartGame();
+    }
+
+    public void Update()
+    {
+        if (currentState != GameState.Playing) return;
+
+        timeUntilIncrease -= Time.deltaTime;
+        if (timeUntilIncrease <= 0f)
+        {
+            IncreaseDifficulty();
+            timeUntilIncrease = 30f; // Reset the timer
+        }
     }
 
     private void StartGame()
@@ -54,6 +83,28 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game started.");
     }
 
+    public void IncreaseDifficulty()
+    {
+               DifficultyLevel++;
+
+        if (asteroidsSpawner != null)
+        {
+            asteroidsSpawner.AsteroidDiffIncrease();
+        }
+
+        if (enemySpawner != null)
+        {
+            enemySpawner.EnemyDiffIncrease();
+        }
+
+        if (difficultyText != null)
+        {
+            difficultyText.text = "Difficulty: " + DifficultyLevel;
+        }
+
+        Debug.Log("Difficulty increased to: " + DifficultyLevel);
+    }
+
     public void AddScore(int amount)
     {
         if (currentState != GameState.Playing) return;
@@ -62,6 +113,18 @@ public class GameManager : MonoBehaviour
         UpdateScoreUI();
 
         Debug.Log("Score updated: " + score);
+    }
+
+    public void DestroyEffect(Vector3 position)
+    {
+      Instantiate(destroyEffectPrefab, position, Quaternion.identity);
+        Debug.Log("Destroy effect instantiated at: " + position);
+    }
+
+    public void PickupEffect(Vector3 position)
+    {
+       Instantiate(ScrapPickupEffect, position, Quaternion.identity);
+        Debug.Log("Pickup effect instantiated at: " + position);
     }
 
     private void UpdateScoreUI()
@@ -77,6 +140,13 @@ public class GameManager : MonoBehaviour
         if (currentState != GameState.Playing) return;
 
         currentState = GameState.GameOver;
+        SaveManager.SaveHighScore(score);
+
+        if (LosehighScoreText != null)
+        {
+            LosehighScoreText.text = "High Score: " + SaveManager.LoadHighScore();
+        }
+
         Debug.Log("Game Over.");
 
         if (gameOverPanel != null) gameOverPanel.SetActive(true);
@@ -93,6 +163,13 @@ public class GameManager : MonoBehaviour
         if (collectibleManager != null && collectibleManager.RemainingItems > 0) return;
 
         currentState = GameState.Won;
+        SaveManager.SaveHighScore(score);
+
+        if (highScoreText != null)
+        {
+            highScoreText.text = "High Score: " + SaveManager.LoadHighScore();
+        }
+
         Debug.Log("Player won: all collectibles gathered.");
 
         if (winPanel != null) winPanel.SetActive(true);

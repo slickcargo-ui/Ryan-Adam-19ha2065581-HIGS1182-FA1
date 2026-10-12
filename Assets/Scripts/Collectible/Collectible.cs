@@ -21,6 +21,8 @@ public class Collectible : MonoBehaviour
 
         Debug.Log("Collectible picked up by player.");
 
+        GameManager.Instance?.PickupEffect(transform.position);
+
         GameManager.Instance?.AddScore(1);
 
         Destroy(gameObject);

@@ -41,12 +41,18 @@ public class Projectile : MonoBehaviour
             Debug.Log("Hit: " + hit.collider.name);
 
             AsteroidBehaviour asteroid = hit.collider.GetComponent<AsteroidBehaviour>();
+            EnemyAi enemy = hit.collider.GetComponent<EnemyAi>();
+
             if (asteroid != null)
             {
                 asteroid.DestroyAsteroid();
             }
 
-            DrawShotVisual(FirePoint.position, hit.point);
+            else if (enemy != null)
+            {
+                enemy.DestroyEnemy();
+            }
+                DrawShotVisual(FirePoint.position, hit.point);
         }
         else
         {

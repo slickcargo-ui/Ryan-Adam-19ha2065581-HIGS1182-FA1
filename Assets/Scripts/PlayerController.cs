@@ -81,8 +81,9 @@ public class PlayerController : MonoBehaviour
 
     public void Die()
     {
+        GameManager.Instance?.DestroyEffect(transform.position);
         Debug.Log("Player has died.");
-        GameManager.Instance.GameOver();
+        GameManager.Instance?.GameOver();
     }
 }
 

@@ -45,7 +45,7 @@ public class AsteroidBehaviour : MonoBehaviour
     public void DestroyAsteroid()
     {
         Debug.Log("Asteroid destroyed by player shot.");
-        // Could add an explosion particle effect here before destroying.
+        GameManager.Instance?.DestroyEffect(transform.position);
         Destroy(gameObject);
     }
 }

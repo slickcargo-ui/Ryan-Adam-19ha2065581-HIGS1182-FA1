@@ -24,6 +24,13 @@ public class AsteroidsSpawner : MonoBehaviour
             TimeSinceLastSpawn = 0f;
         }
     }
+
+    public void AsteroidDiffIncrease()
+    {
+        MaxAsteroids = Mathf.Min(100, MaxAsteroids + 5); // Increase max asteroids but cap at 100
+        spawnInterval = Mathf.Max(0.1f, spawnInterval - 0.1f); // Decrease spawn interval but not below 0.1
+        Debug.Log("Asteroid difficulty increased. MaxAsteroids: " + MaxAsteroids + ", SpawnInterval: " + spawnInterval);
+    }
     private void SpawnAsteroid()
     {
         if (asteroidPrefab == null || spawnArea == null)
@@ -37,12 +44,6 @@ public class AsteroidsSpawner : MonoBehaviour
         CurrentAsteroidCount++;
 
         Debug.Log("Asteroid spawned at" + spawnPosition);
-
-        AsteroidBehaviour behaviour = Asteroid.GetComponent<AsteroidBehaviour>();
-        if (behaviour != null)
-        {
-                       // behaviour.OnAsteroidDestroyed += HandleAsteroidDestroyed;
-        }
 
         StartCoroutine(WatchForDestruction(Asteroid));
     }
